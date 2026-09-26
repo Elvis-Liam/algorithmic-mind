@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------- *
+ * Attribute-based dark mode. The inline script in app/layout.tsx sets
+ * data-theme="light" | "dark" on <html> before first paint (resolving
+ * "system" to the OS preference at that moment), so this is the only
+ * signal Tailwind's dark: variant and the overrides below ever read.
+ * ---------------------------------------------------------------------- */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ---------------------------------------------------------------------- *
+ * Tailwind theme. Every class name below reads as a brand name, never a
+ * hex value or a Tailwind default. --color-*: initial wipes the built-in
+ * palette first, so a stray bg-blue-500 fails to compile instead of
+ * silently rendering. This block is also where the constitution's "define
+ * once as CSS custom properties on :root" happens: @theme compiles to
+ * real :root custom properties, so nothing below is redeclared elsewhere.
+ * --radius-full is capped at 4px so rounded-full can never produce a pill.
+ * ---------------------------------------------------------------------- */
+@theme {
+  --color-*: initial;
+
+  /* Base palette, fixed values from the constitution. */
+  --color-primary: #173630;
+  --color-primary-deep: #102a25;
+  --color-primary-soft: #21463e;
+  --color-ivory: #e3dacb;
+  --color-ivory-light: #f3eee5;
+  --color-ivory-dark: #d6ccbb;
+  --color-gold: #e5c690;
+  --color-gold-dark: #c8a86d;
+  --color-gold-light: #f0d7a5;
+  --color-text-dark: #17211f;
+  --color-text-light: #f8f5ef;
+  --color-muted: #71807b;
+  --color-border-light: rgba(23, 54, 48, 0.14);
+  --color-border-dark: rgba(227, 218, 203, 0.16);
+
+  /* Semantic tokens, default (light) values. Per the constitution's
+     semantic mapping: background ivory-light, surface ivory, text
+     text-dark, muted text muted, rules/accents gold-dark, brand primary. */
+  --color-bg: var(--color-ivory-light);
+  --color-surface: var(--color-ivory);
+  --color-fg: var(--color-text-dark);
+  --color-accent: var(--color-gold-dark);
+  --color-brand: var(--color-primary);
+  --color-rule: var(--color-border-light);
+
+  /* Muted text is defined as a 25% mix toward --color-text-dark, not the
+     literal --color-muted token. The literal token measures 3.58:1 against
+     ivory-light — below the constitution's own 4.5:1 body-text rule — and
+     accessibility is "required in every phase," non-negotiable. This mix
+     follows the same pattern the constitution itself uses for dark-theme
+     muted text (ivory-dark at 70%): a computed derivative of a listed
+     token, not a new hue. Verified at ~5:1. See CONTEXT.md. */
+  --color-fg-muted: color-mix(in srgb, var(--color-muted) 75%, var(--color-text-dark) 25%);
+
+  /* Focus ring colour. NOT the literal "gold-dark" the constitution names:
+     gold-dark measures 1.96:1 against ivory-light, well under the 3:1 a
+     focus indicator needs. Using the theme's high-contrast token instead
+     (primary in light, already-compliant gold in dark) so the ring is
+     actually visible, while keeping the 2px / 2px-offset treatment the
+     constitution specifies. Flagged in CONTEXT.md as a deliberate,
+     accessibility-driven deviation, not an oversight.
+     Light: primary vs ivory-light = 11.3:1. Dark: gold vs primary-deep =
+     9.3:1 (same value the accent token already uses there). */
+  --color-focus-ring: var(--color-primary);
+
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-DEFAULT: 3px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
+  --radius-full: 4px;
+
+  --font-display: var(--font-editorial-serif), ui-serif, Georgia, serif;
+  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --shadow-*: initial;
+  --shadow-hairline: 0 1px 0 0 var(--color-rule);
+}
+
+/* Semantic tokens, dark theme override. Per the constitution: background
+   primary-deep, surface primary, text text-light, muted text ivory-dark at
+   70%, rules/accents gold, brand ivory. Uses the dark-only border token;
+   the light theme's border token is never reused here. This selector is
+   written after @theme so it wins the cascade at equal specificity. */
+[data-theme="dark"] {
+  --color-bg: var(--color-primary-deep);
+  --color-surface: var(--color-primary);
+  --color-fg: var(--color-text-light);
+  --color-fg-muted: color-mix(in srgb, var(--color-ivory-dark) 70%, transparent);
+  --color-accent: var(--color-gold);
+  --color-brand: var(--color-ivory);
+  --color-rule: var(--color-border-dark);
+  --color-focus-ring: var(--color-gold);
+}
+
+/* ---------------------------------------------------------------------- *
+ * Base layer
+ * ---------------------------------------------------------------------- */
+@layer base {
+  * {
+    border-color: var(--color-rule);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 50;
+    background-color: var(--color-surface);
+    color: var(--color-fg);
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-rule);
+    transition: top 0.15s ease;
+  }
+
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+.font-mono-label {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

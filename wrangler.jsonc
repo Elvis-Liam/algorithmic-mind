@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "algorithmic-mind",
+  "main": ".open-next/worker.js",
+  // Bump this to the date you actually deploy. Must be 2024-09-23 or later
+  // for @opennextjs/cloudflare's nodejs_compat requirement.
+  "compatibility_date": "2026-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+  // Bindings for Supabase, Cloudinary, Resend all go through environment
+  // variables (see .env.example / `vars` and `secrets`), not Cloudflare
+  // bindings, since none of those three are Cloudflare services. D1, R2, KV,
+  // or a NEXT_INC_CACHE_R2_BUCKET binding get added here only in the phase
+  // that introduces them.
+}
