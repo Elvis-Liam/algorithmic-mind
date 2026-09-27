@@ -122,6 +122,29 @@ eslint.config.mjs, .prettierrc.json, .prettierignore, .gitignore
   next/image's optimization pipeline doesn't meaningfully re-process a
   raster payload already embedded in an `.svg` wrapper, so it buys nothing
   until the real vector logo lands.
+- **Lighthouse run against the real Cloudflare Workers preview: 96/100
+  accessibility on the first pass**, one finding — nav and footer links
+  were plain inline text with no padding, so their actual clickable box
+  was under the 24×24 CSS px minimum (WCAG 2.5.8). Fixed in
+  `components/layout/nav.tsx` and `components/layout/footer.tsx` by
+  giving each link real padding (`px-2`–`px-3`, `py-2`–`py-2.5`) and
+  cancelling the resulting visual shift with a matching negative margin,
+  so the text still lines up exactly where it did before — only the
+  invisible tap area grew. Same technique applied consistently to both
+  components. Re-run after the fix, via Chrome DevTools' own Lighthouse
+  panel (the CLI kept hitting `chrome-launcher` flakiness on Windows —
+  an interstitial-error false start and then a throttling-related hang,
+  neither one a problem with the app): **100/100 accessibility,
+  confirmed.** Contrast, landmarks, labels, focus order, and ARIA all
+  passed clean, including the two deliberate token deviations noted
+  above, which is the actual confirmation those were the right call.
+  Performance/Best Practices/SEO also came back 96/100/100, unprompted —
+  not a Phase 1 acceptance target, but worth knowing the shell isn't
+  starting from a deficit on those either. **Phase 1 acceptance criteria
+  are now fully verified**, not just written: real `npm install`, real
+  `next build`, real `next lint`, real OpenNext build running under a
+  real local `workerd` (Cloudflare Workers runtime) instance, and a real
+  100/100 accessibility score against that running instance.
 
 ### What the next phase depends on
 - The token names in `styles/globals.css` (`bg`, `surface`, `fg`,
@@ -133,6 +156,55 @@ eslint.config.mjs, .prettierrc.json, .prettierignore, .gitignore
 - The Cloudflare Workers target (not Node.js, not Vercel) constrains
   future dependency choices — check `nodejs_compat` coverage before adding
   anything that touches the filesystem, native bindings, or Node-only APIs.
-- The vector-logo gap above blocks a fully constitution-compliant brand
-  system; treat it as a prerequisite for any phase that touches favicons,
-  social cards, or print-facing assets.
+- The vector-logo gap noted in Phase 1 is resolved — see the "Real brand
+  assets inspected" note below. No longer a blocking item.
+
+## Targeted fix — real brand assets swapped in, header composition corrected
+
+Placeholder logos at `/public/brand/` replaced with final brand assets
+(same filenames, files not touched by me). That surfaced the real bug:
+`Logo` was rendering the *lockup* SVG (mark + wordmark flattened into one
+raster) at 36px tall, which made the baked-in wordmark illegible — not
+just an aspect-ratio mismatch. Fixed by rebuilding `Logo` to show the mark
+SVG alone (sized via CSS height only, `logo-mark-dark.svg` /
+`logo-mark-light.svg`, no hardcoded width/height — the old pixel values
+were pinned to the placeholder's exact dimensions and never matched real
+artwork) next to a real HTML wordmark in the existing editorial-serif
+display font. Restructured `Header` to a single top row (logo+wordmark
+left, clock+theme toggle right) with the tagline full-width below,
+matching the layout referenced. Shrank `SiteClock` and `ThemeToggle`
+sizing to match; toggle padding rechecked against the 24×24px touch-target
+minimum from the Phase 1 Lighthouse fix so it doesn't regress that.
+Touches `Logo`, `Header`, `SiteClock`, `ThemeToggle` — broader than a
+single-file sizing patch, since the actual request (mark+wordmark as one
+unit, repositioned tagline, smaller chrome) needed all four. Not
+re-verified against a live build/Lighthouse run in this pass — recommend
+re-running `npm run build` and a quick Lighthouse pass before trusting it
+fully, same as any other unverified change.
+
+## Real brand assets inspected (no code changed)
+
+You supplied the four real files you'd already placed at `/public/brand/`
+(`logo-mark-dark.svg`, `logo-mark-light.svg`, `logo-lockup-dark.svg`,
+`logo-lockup-light.svg`) for inspection only — read, not modified.
+Findings:
+- **Real vector paths.** `<path>` elements with real coordinate data, not
+  a raster wrapper. Resolves the Phase 1 blocking item.
+- **No file contains the wordmark.** Not even the two named "lockup":
+  `logo-mark-*` and `logo-lockup-*` have identical path data and fill
+  colours, just recentred on different canvas shapes (1250x848 vs. a
+  1264x1264 square). There is no version of the real artwork with
+  "Algorithmic Mind" drawn into it. This confirms the mark-image +
+  real-HTML-wordmark approach built in the header-composition fix above is
+  necessary, not a stylistic choice — there's nothing to fall back to.
+- **Each file bakes in its own opaque full-canvas background rect** (e.g.
+  `logo-mark-dark.svg` is a solid `#0a2a1e` tile with the mark drawn on
+  top), making it a self-contained square badge rather than a transparent
+  mark meant to sit on the page background. This matches every reference
+  screenshot shown throughout this project, so is very likely intentional,
+  but is worth flagging against the constitution's literal "never add...
+  a container" line for the mark. Not changed either way — flagged for a
+  human call, not decided here.
+- **Artwork colours are close but not pixel-identical to the token
+  palette** — e.g. `#0a2a1e` vs. the constitution's `#102A25` for
+  primary-deep, `#c4984a` vs. `#E5C690` for gold. Flagged, not changed.

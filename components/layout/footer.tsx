@@ -27,10 +27,13 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div>
             <h2 className="font-mono-label mb-3 text-fg-muted">Sections</h2>
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col">
               {SECTION_LINKS.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-sm hover:text-accent">
+                  <Link
+                    href={item.href}
+                    className="inline-block px-2 py-2 -mx-2 text-sm hover:text-accent"
+                  >
                     {item.label}
                   </Link>
                 </li>
@@ -40,10 +43,13 @@ export function Footer() {
 
           <div>
             <h2 className="font-mono-label mb-3 text-fg-muted">Legal</h2>
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col">
               {LEGAL_LINKS.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-sm hover:text-accent">
+                  <Link
+                    href={item.href}
+                    className="inline-block px-2 py-2 -mx-2 text-sm hover:text-accent"
+                  >
                     {item.label}
                   </Link>
                 </li>

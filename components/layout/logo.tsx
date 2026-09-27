@@ -1,44 +1,39 @@
 import Link from "next/link";
 
-// The dark-colour lockup renders on the light (ivory) theme, the light-
-// colour lockup renders on the dark (green) theme, per the constitution's
-// "logo-mark-dark.svg for ivory backgrounds, logo-mark-light.svg for green
-// backgrounds" rule. Both are in the DOM; only one is visible at a time via
-// the dark: variant, which reads the data-theme attribute the inline head
-// script sets before first paint, so there is no flash and no client JS
-// needed just to show the right logo.
+// Uses the MARK-only svgs (logo-mark-dark / logo-mark-light), not the
+// lockup svgs. The lockup bakes the wordmark into the raster at a fixed
+// pixel resolution, which reads illegibly once shrunk to header height.
+// The wordmark here is real text instead, set in the same editorial-serif
+// display font already used for headlines (lib/fonts.ts), so it stays
+// sharp at any size and matches the constitution's typography rules for
+// display text (weight 700, tight tracking) rather than being frozen
+// inside an image.
+//
+// No width/height attributes on the mark: those were previously hardcoded
+// to the placeholder raster's exact pixel dimensions (983x561 etc.), which
+// silently assumed every future file at this path shared that aspect
+// ratio. That assumption broke the moment real artwork with different
+// proportions landed at the same filename. Sizing is height-only via CSS
+// (h-10 / h-12) with w-auto, so the displayed width always follows
+// whatever the actual file's intrinsic aspect ratio is.
 export function Logo() {
   return (
-    <Link
-      href="/"
-      className="inline-flex items-center"
-      aria-label="Algorithmic Mind, home"
-    >
-      {/*
-        Plain <img>, not next/image, is deliberate here: these are the
-        placeholder raster-in-svg assets described in README.md and
-        CONTEXT.md. next/image's optimization pipeline resizes/re-encodes
-        raster sources, but can't usefully re-process a raster payload
-        already embedded inside an .svg wrapper, so switching would add
-        complexity without the real benefit next/image exists for. Revisit
-        once the true vector logo lands.
-      */}
+    <Link href="/" className="inline-flex items-center gap-3">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/brand/logo-lockup-dark.svg"
+        src="/brand/logo-mark-dark.svg"
         alt=""
-        className="block h-9 w-auto dark:hidden"
-        width={983}
-        height={561}
+        className="block h-10 w-auto dark:hidden sm:h-12"
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/brand/logo-lockup-light.svg"
+        src="/brand/logo-mark-light.svg"
         alt=""
-        className="hidden h-9 w-auto dark:block"
-        width={1030}
-        height={599}
+        className="hidden h-10 w-auto dark:block sm:h-12"
       />
+      <span className="font-display text-xl font-bold tracking-tight text-fg sm:text-2xl">
+        Algorithmic Mind
+      </span>
     </Link>
   );
 }

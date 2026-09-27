@@ -16,12 +16,12 @@ const NAV_ITEMS = [
 export function Nav() {
   return (
     <nav aria-label="Primary">
-      <ul className="flex flex-wrap gap-x-6 gap-y-2">
+      <ul className="-ml-3 flex flex-wrap gap-x-2 gap-y-1">
         {NAV_ITEMS.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
-              className="font-mono-label text-fg transition-colors hover:text-accent"
+              className="font-mono-label inline-block px-3 py-2.5 text-fg transition-colors hover:text-accent"
             >
               {item.label}
             </Link>

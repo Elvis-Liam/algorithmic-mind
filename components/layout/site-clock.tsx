@@ -31,7 +31,7 @@ export function SiteClock() {
   }, []);
 
   return (
-    <p className="font-mono-label text-fg-muted" suppressHydrationWarning>
+    <p className="font-mono-label text-[11px] text-fg-muted" suppressHydrationWarning>
       {display ?? "\u00a0"}
     </p>
   );

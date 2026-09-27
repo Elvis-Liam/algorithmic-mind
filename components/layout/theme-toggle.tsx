@@ -29,7 +29,7 @@ export function ThemeToggle() {
             aria-checked={active}
             onClick={() => setPreference(option.value)}
             className={cn(
-              "font-mono-label px-3 py-1.5 transition-colors",
+              "font-mono-label px-2.5 py-2 text-[10px] transition-colors",
               active ? "bg-brand text-bg" : "bg-transparent text-fg hover:bg-surface",
             )}
           >
