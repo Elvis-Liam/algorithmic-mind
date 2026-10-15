@@ -14,18 +14,23 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "test": "vitest run",
+    "check:secrets": "node scripts/check-client-secrets.mjs"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
     "next": "^15.5.24",
     "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react-dom": "19.1.1",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",
     "@opennextjs/cloudflare": "^1.20.6",
     "@tailwindcss/postcss": "^4.1.0",
-    "@types/node": "22.10.2",
+    "@types/node": "^22.20.5",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "eslint": "9.18.0",
@@ -34,6 +39,7 @@
     "prettier": "3.4.2",
     "tailwindcss": "^4.1.0",
     "typescript": "5.7.3",
+    "vitest": "^5.0.5",
     "wrangler": "^4.128.0"
   }
 }
